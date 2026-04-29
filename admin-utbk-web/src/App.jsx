@@ -63,6 +63,10 @@ function App() {
   };
 
   const addQuestion = async () => {
+    if (!question.answer) {
+        alert("Pilih kunci jawaban yang benar dulu!");
+        return;
+    }
     await addDoc(collection(db, 'dynamic_questions'), question);
     setQuestion({ subject: 'PU', question: '', optionA: '', optionB: '', optionC: '', optionD: '', optionE: '', answer: '', explanation: '' });
     alert("Data soal berhasil ditambahkan ke sistem.");
@@ -116,10 +120,8 @@ function App() {
     );
   }
 
-  // Tampilan Halaman Dashboard Utama
   return (
     <div className="min-h-screen bg-slate-50 flex font-sans text-slate-900">
-      {/* Panel Navigasi Samping (Sidebar) */}
       <div className="w-72 bg-slate-900 text-white p-8 flex flex-col shadow-xl">
         <div className="flex items-center gap-3 mb-12">
           <div className="p-2 bg-green-500 rounded-lg">
@@ -151,13 +153,12 @@ function App() {
         </button>
       </div>
 
-      {/* Area Konten Utama */}
       <div className="flex-1 p-12 overflow-y-auto">
         {activeTab === 'motivation' ? (
           <div className="max-w-4xl">
             <header className="mb-10">
               <h2 className="text-3xl font-extrabold mb-2">Manajemen Motivasi</h2>
-              <p className="text-slate-500">Kelola teks motivasi dinamis yang akan ditampilkan pada halaman beranda aplikasi.</p>
+              <p className="text-slate-500">Kelola teks motivasi dinamis yang akan ditampilkan pada aplikasi.</p>
             </header>
 
             <div className="flex gap-3 mb-10">
@@ -167,17 +168,17 @@ function App() {
                 placeholder="Masukkan teks motivasi baru..."
                 className="flex-1 p-4 bg-white border border-slate-200 rounded-2xl shadow-sm outline-none focus:ring-2 focus:ring-green-500 transition-all"
               />
-              <button onClick={addMotivation} className="bg-green-600 text-white px-8 py-4 rounded-2xl font-bold flex items-center gap-2 hover:bg-green-700 active:scale-95 transition-all shadow-lg shadow-green-600/20">
+              <button onClick={addMotivation} className="bg-green-600 text-white px-8 py-4 rounded-2xl font-bold flex items-center gap-2 hover:bg-green-700 transition-all">
                 <Plus size={20} /> Tambah Data
               </button>
             </div>
             
             <div className="grid gap-4">
-              {loading ? <p className="animate-pulse text-slate-400">Memuat data dari server...</p> : 
+              {loading ? <p className="animate-pulse">Memuat...</p> : 
                 data.map(item => (
                   <div key={item.id} className="group bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex justify-between items-center hover:border-green-200 transition-all">
-                    <p className="text-slate-700 italic leading-relaxed">"{item.text}"</p>
-                    <button onClick={() => deleteItem(item.id)} className="opacity-0 group-hover:opacity-100 p-2 text-red-500 hover:bg-red-50 rounded-xl transition-all" title="Hapus Data">
+                    <p className="text-slate-700 italic">"{item.text}"</p>
+                    <button onClick={() => deleteItem(item.id)} className="opacity-0 group-hover:opacity-100 p-2 text-red-500 hover:bg-red-50 rounded-xl transition-all">
                       <Trash2 size={20} />
                     </button>
                   </div>
@@ -189,7 +190,7 @@ function App() {
           <div className="max-w-5xl">
             <header className="mb-10">
               <h2 className="text-3xl font-extrabold mb-2">Bank Soal Simulasi</h2>
-              <p className="text-slate-500">Formulir penambahan soal evaluasi untuk pengguna aplikasi.</p>
+              <p className="text-slate-500">Formulir penambahan soal evaluasi.</p>
             </header>
 
             <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 grid grid-cols-2 gap-6">
@@ -209,52 +210,58 @@ function App() {
                   onChange={(e) => setQuestion({...question, subject: e.target.value})}
                   className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-green-500 outline-none"
                 >
-                  {/* TPS (Tes Potensi Skolastik) */}
                   <option value="PU">Penalaran Umum (PU)</option>
                   <option value="PK">Pengetahuan Kuantitatif (PK)</option>
                   <option value="PPU">Pengetahuan dan Pemahaman Umum (PPU)</option>
                   <option value="PBM">Pemahaman Bacaan dan Menulis (PBM)</option>
-                  
-                  {/* Literasi & Penalaran */}
                   <option value="PM">Penalaran Matematika (PM)</option>
                   <option value="LIT_BI">Literasi Bahasa Indonesia (LIT_BI)</option>
                   <option value="LIT_EN">Literasi Bahasa Inggris (LIT_EN)</option>
                 </select>
               </div>
+              
+              {/* --- BAGIAN YANG DIUBAH: DARI INPUT TEKS KE SELECT --- */}
               <div>
                 <label className="block text-sm font-semibold text-slate-600 mb-2 ml-1">Kunci Jawaban Benar</label>
-                <input 
+                <select 
                    value={question.answer} 
                    onChange={(e) => setQuestion({...question, answer: e.target.value})} 
-                   placeholder="Masukkan jawaban yang benar..." 
-                   className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-green-500 outline-none" 
-                />
+                   className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-green-500 outline-none transition-all"
+                >
+                  <option value="">-- Pilih Kunci Jawaban --</option>
+                  <option value="optionA">Opsi A</option>
+                  <option value="optionB">Opsi B</option>
+                  <option value="optionC">Opsi C</option>
+                  <option value="optionD">Opsi D</option>
+                  <option value="optionE">Opsi E</option>
+                </select>
               </div>
+              {/* -------------------------------------------------- */}
+
               {['A', 'B', 'C', 'D', 'E'].map(opt => (
                 <div key={opt}>
-                  <label className="block text-sm font-semibold text-slate-600 mb-2 ml-1">Opsi {opt}</label>
+                  <label className="block text-sm font-semibold text-slate-600 mb-2 ml-1">Isi Teks Opsi {opt}</label>
                   <input 
                     value={question[`option${opt}`]} 
                     onChange={(e) => setQuestion({...question, [`option${opt}`]: e.target.value})} 
                     className="w-full p-4 bg-white border border-slate-200 rounded-2xl focus:border-green-400 outline-none transition-all" 
-                    placeholder={`Masukkan opsi ${opt}...`}
+                    placeholder={`Masukkan teks untuk pilihan ${opt}...`}
                   />
                 </div>
               ))}
 
-              {/* KOTAK PENJELASAN DITAMBAHKAN DI SINI */}
               <div className="col-span-2 mt-2">
                 <label className="block text-sm font-semibold text-slate-600 mb-2 ml-1">Penjelasan / Pembahasan Soal</label>
                 <textarea 
                   value={question.explanation}
                   onChange={(e) => setQuestion({...question, explanation: e.target.value})}
                   className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl h-32 focus:ring-2 focus:ring-green-500 outline-none transition-all"
-                  placeholder="Masukkan cara penyelesaian atau alasan dari jawaban yang benar..."
+                  placeholder="Masukkan cara penyelesaian..."
                 />
               </div>
 
               <div className="col-span-2 pt-6">
-                <button onClick={addQuestion} className="w-full bg-slate-900 text-white p-5 rounded-2xl font-bold text-lg hover:bg-slate-800 shadow-xl shadow-slate-900/10 active:scale-[0.98] transition-all">
+                <button onClick={addQuestion} className="w-full bg-slate-900 text-white p-5 rounded-2xl font-bold text-lg hover:bg-slate-800 transition-all">
                   Simpan Soal ke Database
                 </button>
               </div>
